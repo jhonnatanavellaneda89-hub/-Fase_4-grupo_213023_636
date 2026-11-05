@@ -1,0 +1,38 @@
+# siendo que a lo largo de este curso usamos la libreria tkinter, propongo seguirla usando en este proyecto.
+
+import tkinter as tk
+from tkinter import messagebox
+from datetime import date
+
+# execpciones personalizadas del proyecto.
+
+class ErrorReserva(Exception):
+    pass
+
+class ReservaDuplicada(ErrorReserva):
+    pass
+
+class ReservaNoExiste(ErrorReserva):
+    pass
+
+# crearemos la clase de cliente con sus atributos.
+
+class cliente:
+    def __init__(self, nombre, cedula, telefono):
+        self.nombre = nombre
+        self.cedula = cedula
+        self.telefono = telefono
+
+    def __str__(self):
+        return f"{self.nombre} | Cédula: {self.cedula} | Tel: {self.telefono}"
+
+# crearemos la clase de servicios. con sus atributos.
+
+class servicio:
+    def __init__(self, id_servicio, nombre, precio):
+        self.id_servicio = id_servicio
+        self.nombre = nombre
+        self.precio = precio
+
+    def __str__(self):
+        return f"{self.id_servicio}‑{self.nombre} | ${self.precio}"
