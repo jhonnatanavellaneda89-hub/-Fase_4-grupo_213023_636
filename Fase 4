@@ -36,3 +36,57 @@ class servicio:
 
     def __str__(self):
         return f"{self.id_servicio}‑{self.nombre} | ${self.precio}"
+# crearemos la clase de servicio, con sus atributos
+
+class Servicio:
+    def __init__(self, id_servicio, nombre, precio):
+        self.id_servicio = id_servicio
+        self.nombre = nombre
+        self.precio = precio
+
+    def __str__(self):
+        return f"{self.id_servicio}-{self.nombre} | ${self.precio}"
+
+# crearemos la clase reserva
+
+class Reserva:
+    def __init__(self, id_reserva, cliente, servicio, fecha):
+        self.id_reserva = id_reserva
+        self.cliente = cliente
+        self.servicio = servicio
+        self.fecha = fecha
+        self.activa = True
+
+    def finalizar(self):
+        self.activa = False
+
+    def __str__(self):
+        estado = "Activa" if self.activa else "Finalizada"
+        return f"ID:{self.id_reserva} | {self.cliente.nombre} | {self.servicio.nombre} | Fecha:{self.fecha} | {estado}"
+
+# crearemos el gestor de reservas.
+
+class GestorReservas:
+    def __init__(self):
+        self.lista_clientes = []
+        self.lista_servicios = []
+        self.lista_reservas = []
+
+    def agregar_cliente(self, cliente):
+        self.lista_clientes.append(cliente)
+
+    def agregar_servicio(self, servicio):
+        self.lista_servicios.append(servicio)
+
+    def crear_reserva(self, id_reserva, cedula_cliente, id_servicio, fecha):
+        for r in self.lista_reservas:
+            if r.id_reserva == id_reserva and r.activa:
+                raise ReservaDuplicada("Ya existe una reserva con ese identificador")
+        cli = next((c for c in self.lista_clientes if c.cedula == cedula_cliente), None)
+        ser = next((s for s in self.lista_servicios if s.id_servicio == id_servicio), None)
+        if not cli or not ser:
+            raise ErrorReserva("Cliente o servicio no encontrado")
+        nueva = Reserva(id_reserva, cli, ser, fecha)
+        self.lista_reservas.append(nueva)
+        return nueva
+    
