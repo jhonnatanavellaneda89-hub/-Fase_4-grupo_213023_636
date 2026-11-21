@@ -89,4 +89,111 @@ class GestorReservas:
         nueva = Reserva(id_reserva, cli, ser, fecha)
         self.lista_reservas.append(nueva)
         return nueva
-    
+
+# Crearemos la función de finalizar la reserva.
+
+    def finalizar_reserva(self, id_reserva):
+        reserva = next((r for r in self.lista_reservas if r.id_reserva == id_reserva and r.activa), None)
+        if not reserva:
+            raise ReservaNoExiste("No hay reserva activa con ese ID")
+        reserva.finalizar()
+        self.lista_reservas.remove(reserva)
+
+# Continuaremos con la interfaz grafica del programa.
+
+class VentanaPrincipal:
+    def __init__(self, root, gestor):
+        self.root = root
+        self.gestor = gestor
+        self.root.title("Sistema de Gestión de Reservas")
+        self.root.geometry("720x580")
+
+ # Campos cliente
+
+        tk.Label(root, text="Nombre cliente:").place(x=20, y=20)
+        self.ent_nombre = tk.Entry(root)
+        self.ent_nombre.place(x=130, y=20, width=180)
+
+        tk.Label(root, text="Cédula:").place(x=20, y=50)
+        self.ent_cedula = tk.Entry(root)
+        self.ent_cedula.place(x=130, y=50, width=180)
+
+        tk.Label(root, text="Teléfono:").place(x=20, y=80)
+        self.ent_tel = tk.Entry(root)
+        self.ent_tel.place(x=130, y=80, width=180)
+
+        tk.Button(root, text="Agregar Cliente", command=self.agregar_cliente).place(x=330, y=45)
+
+# Campos reserva
+
+        tk.Label(root, text="ID Reserva:").place(x=20, y=130)
+        self.ent_idres = tk.Entry(root)
+        self.ent_idres.place(x=130, y=130, width=100)
+
+        tk.Label(root, text="ID Servicio:").place(x=240, y=130)
+        self.ent_idserv = tk.Entry(root)
+        self.ent_idserv.place(x=320, y=130, width=80)
+
+        tk.Label(root, text="Fecha:").place(x=20, y=160)
+        self.ent_fecha = tk.Entry(root)
+        self.ent_fecha.place(x=130, y=160, width=180)
+
+        tk.Button(root, text="Crear Reserva", command=self.crear_reserva).place(x=330, y=155)
+        tk.Button(root, text="Finalizar Reserva", command=self.finalizar_reserva).place(x=440, y=155)
+
+# Lista de reservas
+
+        tk.Label(root, text="Lista de reservas:").place(x=20, y=210)
+        self.lista_texto = tk.Listbox(root, width=75, height=10)
+        self.lista_texto.place(x=20, y=235)
+
+# Cargar servicios de ejemplo
+
+        self.gestor.agregar_servicio(Servicio("S01", "Salón principal", 250000))
+        self.gestor.agregar_servicio(Servicio("S02", "Salón pequeño", 120000))
+
+    def agregar_cliente(self):
+        nom = self.ent_nombre.get()
+        ced = self.ent_cedula.get()
+        tel = self.ent_tel.get()
+        if nom and ced and tel:
+            self.gestor.agregar_cliente(cliente(nom, ced, tel))
+            messagebox.showinfo("OK", "Cliente agregado")
+            self.ent_nombre.delete(0, tk.END)
+            self.ent_cedula.delete(0, tk.END)
+            self.ent_tel.delete(0, tk.END)
+        else:
+            messagebox.showerror("Error", "Complete todos los datos del cliente")
+
+    def crear_reserva(self):
+        try:
+            idr = self.ent_idres.get()
+            ids = self.ent_idserv.get()
+            fec = self.ent_fecha.get()
+            self.gestor.crear_reserva(idr, self.ent_cedula.get(), ids, fec)
+            messagebox.showinfo("OK", "Reserva creada")
+            self.actualizar_lista()
+        except ErrorReserva as e:
+            messagebox.showerror("Error", str(e))
+
+    def finalizar_reserva(self):
+        try:
+            idr = self.ent_idres.get()
+            self.gestor.finalizar_reserva(idr)
+            messagebox.showinfo("OK", "Reserva finalizada y eliminada de la lista")
+            self.actualizar_lista()
+        except ReservaNoExiste as e:
+            messagebox.showerror("Error", str(e))
+
+    def actualizar_lista(self):
+        self.lista_texto.delete(0, tk.END)
+        for res in self.gestor.lista_reservas:
+            self.lista_texto.insert(tk.END, str(res))
+
+if __name__ == "__main__":
+    gestor = GestorReservas()
+    ventana = tk.Tk()
+    app = VentanaPrincipal(ventana, gestor)
+    ventana.mainloop()    
+
+
